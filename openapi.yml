@@ -1,0 +1,156 @@
+openapi: 3.0.0
+
+info:
+  title: Magical Mutations
+  version: "1.0.0"
+  description: |
+    A small API for mutating strings. Primarily used for teaching TDD.
+
+components:
+  schemas:
+    GenericApiResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    MutationResult:
+      description: Represents the result of a MutationRequest.
+      type: object
+      properties:
+        id:
+          description: A randomly generated UUID used to retrieve a previously calculated MutationResult.
+          type: string
+          format: uuid
+        result:
+          type: string
+        result_data_type:
+          type: string
+          enum:
+            - string
+            - integer
+            - float
+            - bool
+            - char
+      example:
+        id: fbe89b26-beb1-4595-a928-f2998a768752
+        result: DCBA
+        result_data_type: string
+
+    MutationOperation:
+      description: Represents a request for the mutation of a desired sequence.
+      type: object
+      properties:
+        sequence:
+          type: string
+        sequence_data_type:
+          type: string
+          enum:
+            - string
+            - integer
+            - float
+            - bool
+            - char
+        operation:
+          description: The operation to be performed on the sequence.
+          type: string
+          enum:
+            - encode_base64
+            - decode_base64
+            - encode_rot13
+            - decode_rot13
+            - encode_shift_left
+            - decode_shift_left
+            - encode_shift_right
+            - decode_shift_right
+            - reverse
+            - separate
+            - count
+        operation_key:
+          description: |
+            An integer value for operations which require a numeric key.
+            Those operations are: encode_shift_left, decode_shift_left, encode_shift_right, and decode_shift_right.
+            If no value is provided, 0 will be assumed.
+          type: integer
+      required:
+        - sequence
+        - sequence_data_type
+        - operation
+      example:
+        sequence: ABCD
+        sequence_data_type: string
+        operation: reverse
+        operation_key: 0
+
+  responses:
+    200SuccessfulOperation:
+      description: The requested MutationOperation was completed.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MutationResult"
+
+
+    400BadRequest:
+      description: The MutationRequest was malformed or otherwise contained invalid data.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericApiResponse"
+          example:
+            message: The request was missing property 'sequence'
+
+    500InternalServerError:
+      description: An error occured on the server.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/GenericApiResponse"
+          example:
+            message: Whoopsie
+
+  requestBodies:
+    MutationRequest:
+      description: Request to attempt a MutationOperation.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MutationOperation"
+      required: true
+
+
+paths:
+  /mutate:
+    post:
+      description: Perform a MutationOperation.
+      requestBody:
+        $ref: "#/components/requestBodies/MutationRequest"
+      responses:
+        201:
+          $ref: "#/components/responses/200SuccessfulOperation"
+        400:
+          $ref: "#/components/responses/400BadRequest"
+        500:
+          $ref: "#/components/responses/500InternalServerError"
+
+  /find:
+    post:
+      description: Find a previously calculated result.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  format: uuid
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/200SuccessfulOperation"
+        400:
+          $ref: "#/components/responses/400BadRequest"
+        500:
+          $ref: "#/components/responses/500InternalServerError"
+
