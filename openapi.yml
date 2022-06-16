@@ -106,7 +106,7 @@ paths:
       requestBody:
         $ref: "#/components/requestBodies/MutationRequest"
       responses:
-        201:
+        200:
           $ref: "#/components/responses/200SuccessfulOperation"
         400:
           $ref: "#/components/responses/400BadRequest"
