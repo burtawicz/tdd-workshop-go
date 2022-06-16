@@ -6,22 +6,24 @@ import (
 )
 
 type MutationOperation struct {
-	Sequence         string `json:"sequence"`
-	SequenceDataType string `json:"sequence_data_type"`
-	Operation        string `json:"operation"`
-	OperationKey     int    `json:"operation_key"`
+	Sequence     string `json:"sequence"`
+	Operation    string `json:"operation"`
+	OperationKey int    `json:"operation_key"`
 }
 
 type MutationResult struct {
-	Id             uuid.UUID `json:"id,omitempty"`
-	Result         string    `json:"result,omitempty"`
-	ResultDataType string    `json:"result_data_type,omitempty"`
+	Id     uuid.UUID `json:"id"`
+	Result string    `json:"result"`
 }
 
 func Mutate(c *gin.Context) {
-
+	c.JSON(200, gin.H{
+		"message": "We're currently working on our implementation. Stay tuned.",
+	})
 }
 
 func Find(c *gin.Context) {
-
+	c.JSON(200, gin.H{
+		"message": "We're currently working on our implementation. Stay tuned.",
+	})
 }
