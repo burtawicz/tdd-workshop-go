@@ -24,18 +24,9 @@ components:
           format: uuid
         result:
           type: string
-        result_data_type:
-          type: string
-          enum:
-            - string
-            - integer
-            - float
-            - bool
-            - char
       example:
         id: fbe89b26-beb1-4595-a928-f2998a768752
         result: DCBA
-        result_data_type: string
 
     MutationOperation:
       description: Represents a request for the mutation of a desired sequence.
@@ -43,14 +34,6 @@ components:
       properties:
         sequence:
           type: string
-        sequence_data_type:
-          type: string
-          enum:
-            - string
-            - integer
-            - float
-            - bool
-            - char
         operation:
           description: The operation to be performed on the sequence.
           type: string
@@ -74,11 +57,9 @@ components:
           type: integer
       required:
         - sequence
-        - sequence_data_type
         - operation
       example:
         sequence: ABCD
-        sequence_data_type: string
         operation: reverse
         operation_key: 0
 
@@ -89,7 +70,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/MutationResult"
-
 
     400BadRequest:
       description: The MutationRequest was malformed or otherwise contained invalid data.
