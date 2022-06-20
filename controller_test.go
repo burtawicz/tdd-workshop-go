@@ -2,9 +2,11 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 )
@@ -17,6 +19,60 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 	BeforeEach(func() {
 		router = initializeRouter()
 		writer = httptest.NewRecorder()
+	})
+
+	When("we issue a bad request", func() {
+		It("returns a 400 response when request body is empty", func() {
+			requestBody := []byte(`{}`)
+
+			request, _ = http.NewRequest(
+				http.MethodPost,
+				"/mutate",
+				bytes.NewReader(requestBody),
+			)
+			router.ServeHTTP(writer, request)
+
+			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
+			Expect(writer).To(HaveHTTPBody(
+				MatchJSON(`{"message": "Invalid data contained in request body."}`),
+			))
+		})
+
+		It("returns a 400 response when missing a required property", func() {
+			requestBody := []byte(`{"sequence": "wow,such,a,sequence"}`)
+
+			request, _ = http.NewRequest(
+				http.MethodPost,
+				"/mutate",
+				bytes.NewReader(requestBody),
+			)
+			router.ServeHTTP(writer, request)
+
+			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
+			Expect(writer).To(HaveHTTPBody(
+				MatchJSON(`{"message": "Invalid data contained in request body."}`),
+			))
+		})
+
+		It("returns a 400 response when adding extra parameters", func() {
+			requestBody := []byte(`{
+				"sequence": "wow,such,a,sequence",
+				"operation": "reverse",
+				"secret_key": "super-secure-secret-that-doesnt-belong-here"
+			}`)
+
+			request, _ = http.NewRequest(
+				http.MethodPost,
+				"/mutate",
+				bytes.NewReader(requestBody),
+			)
+			router.ServeHTTP(writer, request)
+
+			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
+			Expect(writer).To(HaveHTTPBody(
+				MatchJSON(`{"message": "Invalid data contained in request body."}`),
+			))
+		})
 	})
 
 	When("we try to reverse a sequence", func() {
@@ -41,6 +97,71 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 			})
 		})
 	})
+
+	When("we try to separate a sequence", func() {
+		It("the result is separated", func() {
+			requestBody := []byte(`{
+				"sequence": "ABCD",
+				"operation": "separate"
+			}`)
+
+			request, _ = http.NewRequest(
+				http.MethodPost,
+				"/mutate",
+				bytes.NewReader(requestBody),
+			)
+			router.ServeHTTP(writer, request)
+
+			Expect(writer).To(HaveHTTPStatus(http.StatusOK))
+			Expect(writer).To(HaveHTTPBody(
+				MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
+			))
+		})
+	})
+
+	When("we try to count the number of characters in a sequence", func() {
+		It("the proper count is returned", func() {
+			requestBody := []byte(`{
+				"sequence": "ABCD",
+				"operation": "count"
+			}`)
+
+			request, _ = http.NewRequest(
+				http.MethodPost,
+				"/mutate",
+				bytes.NewReader(requestBody),
+			)
+			router.ServeHTTP(writer, request)
+
+			Expect(writer).To(HaveHTTPStatus(http.StatusOK))
+			responseBody, readErr := ioutil.ReadAll(writer.Body)
+			Expect(readErr).To(BeNil())
+			var response MutationResult
+			err := json.Unmarshal(responseBody, &response)
+			Expect(err).To(BeNil())
+			Expect(response.Result).To(Equal("4"))
+		})
+	})
+	//
+	//When("we try to encode a sequence using Base64", func() {
+	//	It("returns the expected result, encoded in Base64")
+	//})
+	//
+	//When("we try to decode a sequence using Base64", func() {
+	//	It("returns the expected result, decoded from Base64")
+	//})
+	//
+	//When("we try to encode a sequence using ROT13")
+	//
+	//When("we try to decode a sequence using ROT13")
+	//
+	//When("we try to encode a sequence using ShiftLeft")
+	//
+	//When("we try to decode a sequence using ShiftLeft")
+	//
+	//When("we try to encode a sequence using ShiftRight")
+	//
+	//When("we try to decode a sequence using ShiftRight")
 })
 
 var _ = Describe("Looking for a MutationResult", Label("Find"), func() {
