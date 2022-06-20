@@ -5,6 +5,17 @@
 ## :question: What is this?
 TBA
 
+## :clipboard: Requirements
+* `Reverse` must reverse the sequence - `Reverse("ABCD") == "DCBA"`
+* `Count` must return the number of elements in the sequence - `Count("ABCD") == 4`
+* `Separate` must return the sequence with each element comma separated - `Separate("ABCD") == "A,B,C,D"`
+* `EncodeBase64` must encode the sequence to valid Base64 string - `EncodeBase64("ABCD") == "QUJDRA=="`
+* `DecodeBase64` must decode a Base64-encoded sequence to a regular string - `DecodeBase64("QUJDRA==") == "ABCD"`
+* `EncodeShiftLeft` must shift the sequence left N number of times - `EncodeShiftLeft("ABCD", 2) == "CDAB"`
+* `DecodeShiftLeft` must reverse the shifting of sequence left N number of times - `DecodeShiftLeft("CDAB", 2) == "ABCD"`
+* `EncodeShiftRight` must shift the sequence right, N number of times - `EncodeShiftRight("ABCD", 3) == "CDBA"`
+* `DecodeShiftRight` must reverse the shifting of sequence right N number of times - `DecodeShiftRight("CDBA", 3) == "ABCD"`
+
 ## :package: Installation
 From the CLI, execute
 * `git clone https://github.com/burtawicz/tdd-workshop-go` to clone the repository to your machine
