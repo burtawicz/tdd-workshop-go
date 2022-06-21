@@ -22,65 +22,49 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 	})
 
 	When("we issue a bad request", func() {
-		It("returns a 400 response when request body is empty", func() {
-			requestBody := []byte(`{}`)
+		Context("the request body is empty", func() {
+			It("returns a 400 response", func() {
+				request, _ = http.NewRequest(
+					http.MethodPost,
+					"/mutate",
+					nil,
+				)
+				router.ServeHTTP(writer, request)
 
-			request, _ = http.NewRequest(
-				http.MethodPost,
-				"/mutate",
-				bytes.NewReader(requestBody),
-			)
-			router.ServeHTTP(writer, request)
-
-			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
-			Expect(writer).To(HaveHTTPBody(
-				MatchJSON(`{"message": "Invalid data contained in request body."}`),
-			))
+				Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
+				Expect(writer).To(HaveHTTPBody(
+					MatchJSON(`{
+						"message": "Invalid data contained in request body."
+					}`),
+				))
+			})
 		})
 
-		It("returns a 400 response when missing a required property", func() {
-			requestBody := []byte(`{"sequence": "wow,such,a,sequence"}`)
+		Context("the request body is missing a required property", func() {
+			It("returns a 400 response", func() {
+				requestBody := []byte(`{"sequence": "wow,such,a,sequence"}`)
 
-			request, _ = http.NewRequest(
-				http.MethodPost,
-				"/mutate",
-				bytes.NewReader(requestBody),
-			)
-			router.ServeHTTP(writer, request)
+				request, _ = http.NewRequest(
+					http.MethodPost,
+					"/mutate",
+					bytes.NewReader(requestBody),
+				)
+				router.ServeHTTP(writer, request)
 
-			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
-			Expect(writer).To(HaveHTTPBody(
-				MatchJSON(`{"message": "Invalid data contained in request body."}`),
-			))
+				Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
+				Expect(writer).To(HaveHTTPBody(
+					MatchJSON(`{
+						"message": "Invalid data contained in request body."
+					}`),
+				))
+			})
 		})
 
-		It("returns a 400 response when adding extra parameters", func() {
-			requestBody := []byte(`{
-				"sequence": "wow,such,a,sequence",
-				"operation": "reverse",
-				"secret_key": "super-secure-secret-that-doesnt-belong-here"
-			}`)
-
-			request, _ = http.NewRequest(
-				http.MethodPost,
-				"/mutate",
-				bytes.NewReader(requestBody),
-			)
-			router.ServeHTTP(writer, request)
-
-			Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
-			Expect(writer).To(HaveHTTPBody(
-				MatchJSON(`{"message": "Invalid data contained in request body."}`),
-			))
-		})
-	})
-
-	When("we try to reverse a sequence", func() {
-		Context("and the request is well formed", func() {
-			It("the result is reversed", func() {
+		Context("the request body contains an invalid type", func() {
+			It("returns a 400 response", func() {
 				requestBody := []byte(`{
-					"sequence": "ABCD",
-					"operation": "reverse",
+					"sequence": "wow,such,a,sequence",
+					"operation": 5
 				}`)
 
 				request, _ = http.NewRequest(
@@ -90,32 +74,38 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 				)
 				router.ServeHTTP(writer, request)
 
-				Expect(writer).To(HaveHTTPStatus(http.StatusOK))
+				Expect(writer).To(HaveHTTPStatus(http.StatusBadRequest))
 				Expect(writer).To(HaveHTTPBody(
-					MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
+					MatchJSON(`{
+						"message": "Invalid data contained in request body."
+					}`),
 				))
 			})
 		})
 	})
 
-	When("we try to separate a sequence", func() {
-		It("the result is separated", func() {
-			requestBody := []byte(`{
-				"sequence": "ABCD",
-				"operation": "separate"
-			}`)
+	When("we try to reverse a sequence", func() {
+		Context("and the request is well formed", func() {
+			It("the result is reversed", func() {
+				requestBody := []byte(`{
+					"sequence": "ABCD",
+					"operation": "reverse"
+				}`)
 
-			request, _ = http.NewRequest(
-				http.MethodPost,
-				"/mutate",
-				bytes.NewReader(requestBody),
-			)
-			router.ServeHTTP(writer, request)
+				request, _ = http.NewRequest(
+					http.MethodPost,
+					"/mutate",
+					bytes.NewReader(requestBody),
+				)
+				router.ServeHTTP(writer, request)
 
-			Expect(writer).To(HaveHTTPStatus(http.StatusOK))
-			Expect(writer).To(HaveHTTPBody(
-				MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
-			))
+				Expect(writer).To(HaveHTTPStatus(http.StatusInternalServerError))
+				Expect(writer).To(HaveHTTPBody(
+					MatchJSON(`{
+						"message": "Not implemented."
+					}`),
+				))
+			})
 		})
 	})
 
@@ -142,7 +132,28 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 			Expect(response.Result).To(Equal("4"))
 		})
 	})
+
+	//When("we try to separate a sequence", func() {
+	//	It("the result is separated", func() {
+	//		requestBody := []byte(`{
+	//			"sequence": "ABCD",
+	//			"operation": "separate"
+	//		}`)
 	//
+	//		request, _ = http.NewRequest(
+	//			http.MethodPost,
+	//			"/mutate",
+	//			bytes.NewReader(requestBody),
+	//		)
+	//		router.ServeHTTP(writer, request)
+	//
+	//		Expect(writer).To(HaveHTTPStatus(http.StatusOK))
+	//		Expect(writer).To(HaveHTTPBody(
+	//			MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
+	//		))
+	//	})
+	//})
+
 	//When("we try to encode a sequence using Base64", func() {
 	//	It("returns the expected result, encoded in Base64")
 	//})
@@ -164,35 +175,35 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 	//When("we try to decode a sequence using ShiftRight")
 })
 
-var _ = Describe("Looking for a MutationResult", Label("Find"), func() {
-	var router *gin.Engine
-	var writer *httptest.ResponseRecorder
-	var request *http.Request
-
-	BeforeEach(func() {
-		router = initializeRouter()
-		writer = httptest.NewRecorder()
-	})
-
-	When("we submit a valid id", func() {
-		Context("and the request is well formed", func() {
-			It("the result is returned", func() {
-				requestBody := []byte(`{
-					"id": "fbe89b26-beb1-4595-a928-f2998a768752",
-				}`)
-
-				request, _ = http.NewRequest(
-					http.MethodPost,
-					"/find",
-					bytes.NewReader(requestBody),
-				)
-				router.ServeHTTP(writer, request)
-
-				Expect(writer).To(HaveHTTPStatus(http.StatusOK))
-				Expect(writer).To(HaveHTTPBody(
-					MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
-				))
-			})
-		})
-	})
-})
+//var _ = Describe("Looking for a MutationResult", Label("Find"), func() {
+//	var router *gin.Engine
+//	var writer *httptest.ResponseRecorder
+//	var request *http.Request
+//
+//	BeforeEach(func() {
+//		router = initializeRouter()
+//		writer = httptest.NewRecorder()
+//	})
+//
+//	When("we submit a valid id", func() {
+//		Context("and the request is well formed", func() {
+//			It("the result is returned", func() {
+//				requestBody := []byte(`{
+//					"id": "fbe89b26-beb1-4595-a928-f2998a768752",
+//				}`)
+//
+//				request, _ = http.NewRequest(
+//					http.MethodPost,
+//					"/find",
+//					bytes.NewReader(requestBody),
+//				)
+//				router.ServeHTTP(writer, request)
+//
+//				Expect(writer).To(HaveHTTPStatus(http.StatusOK))
+//				Expect(writer).To(HaveHTTPBody(
+//					MatchJSON(`{"message": "We're currently working on our implementation. Stay tuned."}`),
+//				))
+//			})
+//		})
+//	})
+//})
