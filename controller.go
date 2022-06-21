@@ -124,13 +124,6 @@ func Mutate(c *gin.Context) {
 		)
 		return
 	}
-
-	c.JSON(
-		http.StatusOK,
-		gin.H{
-			"message": "We're currently working on our implementation. Stay tuned.",
-		},
-	)
 }
 
 func Find(c *gin.Context) {
