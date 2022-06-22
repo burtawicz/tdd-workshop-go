@@ -5,22 +5,25 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Count some strings", func() {
-	When("given a valid string", func() {
-		It("returns the correct count for the string", func() {
+var _ = Describe("Count some sequences", func() {
+	When("given a valid sequence", func() {
+		It("returns the correct count for the sequence", func() {
 			Expect(Count("ABCD")).To(Equal(4))
+		})
+
+		It("returns the correct count for an empty sequence", func() {
 			Expect(Count("")).To(Equal(0))
 		})
 	})
 })
 
-// TODO: implement TestReverse
-// TODO: implement TestSeparate
-// TODO: implement TestEncodeRot13
-// TODO: implement TestDecodeRot13
-// TODO: implement TestEncodeBase64
-// TODO: implement TestDecodeBase64
-// TODO: implement TestEncodeShiftLeft
-// TODO: implement TestDecodeShiftLeft
-// TODO: implement TestEncodeShiftRight
-// TODO: implement TestDecodeShiftRight
+// TODO: implement Reverse test
+// TODO: implement Separate test
+// TODO: implement EncodeRot13 test
+// TODO: implement DecodeRot13 test
+// TODO: implement EncodeBase64 test
+// TODO: implement DecodeBase64 test
+// TODO: implement EncodeShiftLeft test
+// TODO: implement DecodeShiftLeft test
+// TODO: implement EncodeShiftRight test
+// TODO: implement DecodeShiftRight test
