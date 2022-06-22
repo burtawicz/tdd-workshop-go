@@ -3,7 +3,11 @@
 [![CircleCI](https://circleci.com/gh/burtawicz/tdd-workshop-go/tree/main.svg?style=svg&circle-token=b54f4458246611d235827f4c7d6cf77ba94d0e55)](https://circleci.com/gh/burtawicz/tdd-workshop-go/tree/main)
 
 ## :question: What is this?
-TBA
+A small API for mutating strings. 
+
+## :bangbang: The problem
+Some of our tests started failing, upon investigating the cause we've found that some of our core functions have disappeared.
+We have only one hope to save our API - **T**est-**D**riven **D**evelopment!
 
 ## :clipboard: Requirements
 * `Reverse` must reverse the sequence - `Reverse("ABCD") == "DCBA"`
@@ -21,9 +25,6 @@ From the CLI, execute
 * `git clone https://github.com/burtawicz/tdd-workshop-go` to clone the repository to your machine
 * `cd tdd-workshop-go` to enter the project directory
 * `go build` to build the project
-
-## :bangbang: Usage
-TBA
 
 ## :alembic: Running the tests
 From the CLI, execute `go test`
