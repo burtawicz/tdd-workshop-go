@@ -89,9 +89,9 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 		Context("we try to count the number of characters in a sequence", func() {
 			It("the proper count is returned", func() {
 				requestBody := []byte(`{
-				"sequence": "ABCD",
-				"operation": "count"
-			}`)
+					"sequence": "ABCD",
+					"operation": "count"
+				}`)
 
 				request, _ = http.NewRequest(
 					http.MethodPost,
@@ -106,55 +106,7 @@ var _ = Describe("Performing a MutationOperation", Label("Mutate"), func() {
 				var response MutationResult
 				err := json.Unmarshal(responseBody, &response)
 				Expect(err).To(BeNil())
-				Expect(response.Result).To(Equal("DCBA"))
-			})
-		})
-
-		Context("we try to reverse a sequence", func() {
-			It("returns a result with the reversed sequence", func() {
-				requestBody := []byte(`{
-					"sequence": "ABCD",
-					"operation": "reverse"
-				}`)
-
-				request, _ = http.NewRequest(
-					http.MethodPost,
-					"/mutate",
-					bytes.NewReader(requestBody),
-				)
-				router.ServeHTTP(writer, request)
-
-				Expect(writer).To(HaveHTTPStatus(http.StatusInternalServerError))
-				responseBody, readErr := ioutil.ReadAll(writer.Body)
-				Expect(readErr).To(BeNil())
-				var response MutationResult
-				err := json.Unmarshal(responseBody, &response)
-				Expect(err).To(BeNil())
-				Expect(response.Result).To(Equal(""))
-			})
-		})
-
-		Context("we try to separate a sequence", func() {
-			It("the result is separated", func() {
-				requestBody := []byte(`{
-					"sequence": "ABCD",
-					"operation": "separate"
-				}`)
-
-				request, _ = http.NewRequest(
-					http.MethodPost,
-					"/mutate",
-					bytes.NewReader(requestBody),
-				)
-				router.ServeHTTP(writer, request)
-
-				Expect(writer).To(HaveHTTPStatus(http.StatusInternalServerError))
-				responseBody, readErr := ioutil.ReadAll(writer.Body)
-				Expect(readErr).To(BeNil())
-				var response MutationResult
-				err := json.Unmarshal(responseBody, &response)
-				Expect(err).To(BeNil())
-				Expect(response.Result).To(Equal("A,B,C,D"))
+				Expect(response.Result).To(Equal("4"))
 			})
 		})
 	})

@@ -21,7 +21,7 @@ type MutationResult struct {
 	Result string    `json:"result"`
 }
 
-type FindMutationResult struct {
+type FindMutationRequest struct {
 	Id uuid.UUID `json:"id,required"`
 }
 
@@ -156,7 +156,7 @@ func Mutate(c *gin.Context) {
 }
 
 func Find(c *gin.Context) {
-	var requestBody FindMutationResult
+	var requestBody FindMutationRequest
 	// check that our request data has been properly bound to the struct
 	if err := c.ShouldBindJSON(&requestBody); err != nil {
 		c.AbortWithStatusJSON(
